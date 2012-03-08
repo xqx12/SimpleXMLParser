@@ -1,6 +1,6 @@
 
 <root xmlns:a="hello" u="test" >
-    <a:A></a:A>
-    <a:B/>
+    <a:A attr1="attr" ></a:A>
+    <a:B />
     <b:A/>
 </root>

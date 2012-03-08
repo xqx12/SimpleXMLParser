@@ -35,8 +35,17 @@ void parseXML(FILE* fp) {
 
             //Process node name and attributes list from the current xml node
             char* nodename = readNodeName(fp);
+            
+            //if LTStarted is set means that current node is not yet processed completely, i.e attributes may be present
+            if (LTStarted == 1) {
+                Attribute* attributeList = readAttributes(fp);
+
+                reverseAttribList(&attributeList);
+                printAttributes(attributeList);
+            }
+            
             if (nodename != NULL) {
-                if (endTag == 0) {
+                if ( endTag == 0 && isSelfEndTag == 0 ) {
                     //endTag is not set so it is a start tag
                     printf("Start Tag: %s\n", nodename);
                 } else {
@@ -49,18 +58,6 @@ void parseXML(FILE* fp) {
                 }
             }
 
-            //if LTStarted is set means that current node is not yet processed completely, i.e attributes may be present
-            if (LTStarted == 1) {
-                Attribute* attributeList = readAttributes(fp);
-
-                if (isSelfEndTag == 1) {
-                    //Process self end tag
-                    printf("Self End Tag: %s\n", nodename);
-                }
-
-                reverseAttribList(&attributeList);
-                printAttributes(attributeList);
-            }
         }
     }
 }

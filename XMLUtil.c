@@ -17,6 +17,9 @@ int LTStarted = 0;
 //set while processing end tag
 int endTag = 0;
 
+//reset self-end tag
+int isSelfEndTag = 0;
+
 void parseXML(FILE* fp) {
     //If FILE Pointer is NULL return
     if (fp == NULL) {
@@ -37,6 +40,10 @@ void parseXML(FILE* fp) {
                     //endTag is not set so it is a start tag
                     printf("Start Tag: %s\n", nodename);
                 } else {
+                    if (isSelfEndTag == 1) {
+                        //Process self end tag
+                        printf("Self ");
+                    }
                     //endTag is set, so it is an end tag
                     printf("End Tag: %s\n", nodename);
                 }
@@ -45,6 +52,12 @@ void parseXML(FILE* fp) {
             //if LTStarted is set means that current node is not yet processed completely, i.e attributes may be present
             if (LTStarted == 1) {
                 Attribute* attributeList = readAttributes(fp);
+
+                if (isSelfEndTag == 1) {
+                    //Process self end tag
+                    printf("Self End Tag: %s\n",nodename);
+                }
+
                 reverseAttribList(&attributeList);
                 printAttributes(attributeList);
             }
@@ -61,6 +74,9 @@ char* readNodeName(FILE* fp) {
 
     //reset endTag
     endTag = 0;
+
+    //reset sef-end tag
+    isSelfEndTag = 0;
 
     //return if File pointer is NULL
     if (fp == NULL) {
@@ -89,6 +105,10 @@ char* readNodeName(FILE* fp) {
                     if (fgetc(fp) == '>') {
                         //found end tag "/>"
                         endTag = 1;
+
+                        //it is a self-end tag
+                        isSelfEndTag = 1;
+
                         //we have to reset LTStarted flag
                         LTStarted = 0;
                         return nodename;
@@ -137,6 +157,10 @@ Attribute* readAttributes(FILE* fp) {
     int attribflag = 0;
     int attribquotes = 0;
     int readAttribute = 0;
+    int isReadingAttribName = 0;
+
+    //reset sef-end tag
+    isSelfEndTag = 0;
 
     //return if File pointer is NULL
     if (fp == NULL) {
@@ -160,7 +184,7 @@ Attribute* readAttributes(FILE* fp) {
 
             if (newWord == 1) {
 
-                //if attribflag is unset, it is an parser error attribute value expected
+                //if attribflag is unset, it is an parser error, attribute value expected
                 if (attribflag == 1 || (attribflag == 0 && readAttribute == 0)) {
                     printf("UnExpected Parser Error.\n");
                     return NULL;
@@ -198,6 +222,10 @@ Attribute* readAttributes(FILE* fp) {
 
                 if (ch == '/') {
                     if (fgetc(fp) == '>') {
+
+                        //it is a self-end tag
+                        isSelfEndTag = 1;
+
                         //found end tag "/>"
                         return attributeList;
                     } else {
@@ -209,6 +237,13 @@ Attribute* readAttributes(FILE* fp) {
 
             }
         } else {
+            
+            //omit spaces in the beginning
+            if( isReadingAttribName == 0 && ch == ' ' )
+            {
+                continue;
+            }
+            
             //still we are reading attribute
             readAttribute = 0;
 
@@ -220,6 +255,10 @@ Attribute* readAttributes(FILE* fp) {
 
             //Process the character which belongs to current new word
             if (attribflag == 0) {
+                
+                //started reading attribute name
+                isReadingAttribName = 1;
+                
                 //save attribute name
                 asprintf(&attributename, "%s%c", attributename, ch);
             } else {
@@ -236,6 +275,14 @@ Attribute* readAttributes(FILE* fp) {
             }
 
             if (attribflag == 1) {
+                
+                if(ch == '/' || ch == '>')
+                {
+                    //unexpected end of tag, attribute value expected
+                    printf("Unexpected end of tag, attribute value expected");
+                    return NULL;
+                }
+                
                 if (ch == '\"') {
                     //simply increment quotes count
                     attribquotes++;
@@ -249,10 +296,10 @@ Attribute* readAttributes(FILE* fp) {
                 attribquotes = 0;
                 readAttribute = 1;
                 printf("Attribute_1: |%s|%s|\n", trim(attributename), trim(attributevalue));
-                
+
                 //insert into attribute list
-                addtoAttributeList(&attributeList,trim(attributename),trim(attributevalue));
-                
+                addtoAttributeList(&attributeList, trim(attributename), trim(attributevalue));
+
                 attributename = "";
                 attributevalue = "";
             }

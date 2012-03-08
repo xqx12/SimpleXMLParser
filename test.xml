@@ -1,0 +1,5 @@
+<root xmlns:a="hello">
+	<a:A/>
+	<a:B/>
+	<b:A/>
+</root>

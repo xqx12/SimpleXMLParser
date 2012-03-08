@@ -7,10 +7,10 @@
 
 #include "FileUtil.h"
 #include "XMLUtil.h"
+#include "StringUtil.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
 
 int readFile()
 {

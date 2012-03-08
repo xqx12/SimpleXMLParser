@@ -37,6 +37,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/simpleXMLParser.o \
 	${OBJECTDIR}/XMLUtil.o \
 	${OBJECTDIR}/Attribute.o \
+	${OBJECTDIR}/StringUtil.o \
 	${OBJECTDIR}/FileUtil.o
 
 
@@ -78,6 +79,11 @@ ${OBJECTDIR}/Attribute.o: Attribute.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Attribute.o Attribute.c
+
+${OBJECTDIR}/StringUtil.o: StringUtil.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/StringUtil.o StringUtil.c
 
 ${OBJECTDIR}/FileUtil.o: FileUtil.c 
 	${MKDIR} -p ${OBJECTDIR}

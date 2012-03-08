@@ -7,6 +7,7 @@
 
 #include "XMLUtil.h"
 #include "Attribute.h"
+#include "StringUtil.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,7 +126,8 @@ void readAttributes(FILE* fp) {
     Attribute* attributeList = NULL;
 
     //initialize attribute to NULL
-    char* attribute = "";
+    char* attributename = "";
+    char* attributevalue = "";
 
     //No new word is encountered
     int newWord = 0;
@@ -157,7 +159,7 @@ void readAttributes(FILE* fp) {
             if (newWord == 1) {
 
                 //if attribflag is unset, it is an parser error attribute value expected
-                if (attribflag==1 || (attribflag == 0 && readAttribute == 0)) {
+                if (attribflag == 1 || (attribflag == 0 && readAttribute == 0)) {
                     printf("UnExpected Parser Error.\n");
                     return;
                 }
@@ -181,7 +183,8 @@ void readAttributes(FILE* fp) {
                 }
 
                 //reinitialize attribute for further processing
-                attribute = "";
+                attributename = "";
+                attributevalue = "";
 
                 //reset newWord flag
                 newWord = 0;
@@ -207,16 +210,23 @@ void readAttributes(FILE* fp) {
             //still we are reading attribute
             readAttribute = 0;
 
-            //Process the character which belongs to current new word
-            asprintf(&attribute, "%s%c", attribute, ch);
-
-            //mark newWord which represents the current word that is being read
-            newWord = 1;
-
             if (ch == '=') {
                 //to check that we are going to read attribute value
                 attribflag = 1;
+                continue;
             }
+
+            //Process the character which belongs to current new word
+            if (attribflag == 0) {
+                //save attribute name
+                asprintf(&attributename, "%s%c", attributename, ch);
+            } else {
+                //save attribute value
+                asprintf(&attributevalue, "%s%c", attributevalue, ch);
+            }
+
+            //mark newWord which represents the current word that is being read
+            newWord = 1;
 
             if (ch == '\"' && attribflag == 0) {
                 printf("XML Parsing error. Check \" \n");
@@ -236,9 +246,12 @@ void readAttributes(FILE* fp) {
                 attribflag = 0;
                 attribquotes = 0;
                 readAttribute = 1;
-                printf("Attribute_1: %s\n", attribute);
-                attribute = "";
+                printf("Attribute_1: |%s|%s|\n", trim(attributename), trim(attributevalue));
+                attributename = "";
+                attributevalue = "";
             }
+
+
 
 
         }
@@ -246,32 +259,3 @@ void readAttributes(FILE* fp) {
     return;
 }
 
-void splitAttribute(Attribute** attributeList, char* attribute) {
-    //read name till "=" is found
-    int isName = 1;
-
-    char* name = "";
-    char* value = "";
-
-    while (*attribute != '\0') {
-        if (*attribute == '=') {
-            //unset isName and start reading attribute value
-            isName = 0;
-            attribute++;
-            continue;
-        }
-
-        if (isName == 1) {
-            //read attribute name
-            asprintf(&name, "%s%c", name, *attribute);
-        } else {
-            //read attribute value
-            asprintf(&value, "%s%c", value, *attribute);
-        }
-
-        //increment the string pointer
-        attribute++;
-    }
-
-    printf("NAME: %s, Value: %s\n", name, value);
-}

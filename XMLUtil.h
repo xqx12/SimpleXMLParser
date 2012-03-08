@@ -20,7 +20,6 @@ extern "C" {
     void parseXML(FILE* fp);
     char* readNodeName(FILE* fp);
     void readAttributes(FILE* fp);
-    void splitAttribute(Attribute** attributeList,char* attribute);
 
 #ifdef	__cplusplus
 }

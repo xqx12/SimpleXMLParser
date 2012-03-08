@@ -12,6 +12,9 @@
 
 int LTStarted = 0;
 
+//set while processing end tag
+int endTag = 0;
+
 void parseXML(FILE* fp) {
     //If FILE Pointer is NULL return
     if (fp == NULL) {
@@ -27,9 +30,20 @@ void parseXML(FILE* fp) {
 
             //Process node name and attributes list from the current xml node
             char* nodename = readNodeName(fp);
-            if (nodename != NULL)
-                printf("%s %d\n", nodename, LTStarted);
-            //readAttributes(fp);
+            if (nodename != NULL) {
+                if (endTag == 0) {
+                    //endTag is not set so it is a start tag
+                    printf("Start Tag: %s\n", nodename);
+                } else {
+                    //endTag is set, so it is an end tag
+                    printf("End Tag: %s\n", nodename);
+                }
+            }
+
+            //if LTStarted is set means that current node is not yet processed completely, i.e attributes may be present
+            if (LTStarted == 1) {
+                readAttributes(fp);
+            }
         }
     }
 }
@@ -41,8 +55,8 @@ char* readNodeName(FILE* fp) {
     //No new word is encountered
     int newWord = 0;
 
-    //set while processing end tag
-    int endTag = 0;
+    //reset endTag
+    endTag = 0;
 
     //return if File pointer is NULL
     if (fp == NULL) {
@@ -62,9 +76,23 @@ char* readNodeName(FILE* fp) {
                     return NULL;
                 }
 
-                if (ch == '>' || ch == '/' ) {
-                    //if '>' or '/' is found, reset the LTStarted flag
+                if (ch == '>') {
+                    //if '>' is found, reset the LTStarted flag
                     LTStarted = 0;
+                }
+                
+                if (ch == '/') {
+                    if (fgetc(fp) == '>') {
+                        //found end tag "/>"
+                        endTag = 1;
+                        //we have to reset LTStarted flag
+                        LTStarted = 0;
+                        return nodename;
+                    } else {
+                        //parsing error
+                        printf("XML Parsing error. '>' does not appear immediately after '/'.\n");
+                        return NULL;
+                    }
                 }
 
                 //Already we processed a new word now we found delimiter
@@ -89,4 +117,80 @@ char* readNodeName(FILE* fp) {
         }
     }
     return NULL;
+}
+
+void readAttributes(FILE* fp) {
+    //initialize attribute to NULL
+    char* attribute = "";
+
+    //No new word is encountered
+    int newWord = 0;
+
+    //return if File pointer is NULL
+    if (fp == NULL) {
+        printf(" Cannot parse XML File. Please provide a valid input file. ");
+        return;
+    }
+
+    char ch = 0;
+    //process the input file
+    while ((ch = fgetc(fp)) != EOF) {
+        //check whether the character is delimiter or not
+        if (ch == ' ' || ch == '/' || ch == '>') {
+
+            //check end tag is proper or contains '/' in between or at the end of tag name
+            if (ch == '/' && endTag == 1) {
+                printf("Error while parsing end XML Node name.\n");
+                return;
+            }
+
+            if (newWord == 1) {
+
+                //if attribute appears in end tag like </country id="IND"> it should result in error
+                if (endTag == 1) {
+                    printf("Parsing Error. attribute appears in end tag like </country id='IND'>\n");
+                    return;
+                }
+
+                //Already we processed a new word now we found delimiter
+                printf("Attribute: %s\n", attribute);
+
+                if (ch == '>' || ch == '/') {
+                    //if '>' or '/' is found, reset the LTStarted flag
+                    LTStarted = 0;
+                    return;
+                }
+
+                //reinitialize attribute for further processing
+                attribute = "";
+
+                //reset newWord flag
+                newWord = 0;
+            } else {
+                if (ch == '>') {
+                    //found end of tag
+                    return;
+                }
+
+                if (ch == '/') {
+                    if (fgetc(fp) == '>') {
+                        //found end tag "/>"
+                        return;
+                    } else {
+                        //parsing error
+                        printf("XML Parsing error. '>' does not appear immediately after '/'.\n");
+                        return;
+                    }
+                }
+
+            }
+        } else {
+            //Process the character which belongs to current new word
+            asprintf(&attribute, "%s%c", attribute, ch);
+
+            //mark newWord which represents the current word that is being read
+            newWord = 1;
+        }
+    }
+    return;
 }

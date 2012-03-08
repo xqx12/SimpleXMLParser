@@ -44,7 +44,9 @@ void parseXML(FILE* fp) {
 
             //if LTStarted is set means that current node is not yet processed completely, i.e attributes may be present
             if (LTStarted == 1) {
-                readAttributes(fp);
+                Attribute* attributeList = readAttributes(fp);
+                reverseAttribList(&attributeList);
+                printAttributes(attributeList);
             }
         }
     }
@@ -121,7 +123,7 @@ char* readNodeName(FILE* fp) {
     return NULL;
 }
 
-void readAttributes(FILE* fp) {
+Attribute* readAttributes(FILE* fp) {
     //create new Attribute list
     Attribute* attributeList = NULL;
 
@@ -139,7 +141,7 @@ void readAttributes(FILE* fp) {
     //return if File pointer is NULL
     if (fp == NULL) {
         printf(" Cannot parse XML File. Please provide a valid input file. ");
-        return;
+        return NULL;
     }
 
     char ch = 0;
@@ -153,7 +155,7 @@ void readAttributes(FILE* fp) {
             //check end tag is proper or contains '/' in between or at the end of tag name
             if (ch == '/' && endTag == 1) {
                 printf("Error while parsing end XML Node name.\n");
-                return;
+                return NULL;
             }
 
             if (newWord == 1) {
@@ -161,13 +163,13 @@ void readAttributes(FILE* fp) {
                 //if attribflag is unset, it is an parser error attribute value expected
                 if (attribflag == 1 || (attribflag == 0 && readAttribute == 0)) {
                     printf("UnExpected Parser Error.\n");
-                    return;
+                    return NULL;
                 }
 
                 //if attribute appears in end tag like </country id="IND"> it should result in error
                 if (endTag == 1) {
                     printf("Parsing Error. attribute appears in end tag like </country id='IND'>\n");
-                    return;
+                    return NULL;
                 }
 
                 /* Does it require?
@@ -179,7 +181,7 @@ void readAttributes(FILE* fp) {
                 if (ch == '>' || ch == '/') {
                     //if '>' or '/' is found, reset the LTStarted flag
                     LTStarted = 0;
-                    return;
+                    return attributeList;
                 }
 
                 //reinitialize attribute for further processing
@@ -191,17 +193,17 @@ void readAttributes(FILE* fp) {
             } else {
                 if (ch == '>') {
                     //found end of tag
-                    return;
+                    return attributeList;
                 }
 
                 if (ch == '/') {
                     if (fgetc(fp) == '>') {
                         //found end tag "/>"
-                        return;
+                        return attributeList;
                     } else {
                         //parsing error
                         printf("XML Parsing error. '>' does not appear immediately after '/'.\n");
-                        return;
+                        return NULL;
                     }
                 }
 
@@ -230,7 +232,7 @@ void readAttributes(FILE* fp) {
 
             if (ch == '\"' && attribflag == 0) {
                 printf("XML Parsing error. Check \" \n");
-                return;
+                return NULL;
             }
 
             if (attribflag == 1) {
@@ -247,15 +249,15 @@ void readAttributes(FILE* fp) {
                 attribquotes = 0;
                 readAttribute = 1;
                 printf("Attribute_1: |%s|%s|\n", trim(attributename), trim(attributevalue));
+                
+                //insert into attribute list
+                addtoAttributeList(&attributeList,trim(attributename),trim(attributevalue));
+                
                 attributename = "";
                 attributevalue = "";
             }
-
-
-
-
         }
     }
-    return;
+    return attributeList;
 }
 

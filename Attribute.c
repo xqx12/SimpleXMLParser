@@ -81,16 +81,25 @@ void reverseAttribList(Attribute** attrbList)
         //reverse the link of q by pointing to p
         q->sibling = p;
         
-        //now move p,q,r by one step
-        p = q;
-        q = r;
         if( r == NULL )
         {
             //Reached end of list, make q as new head of the list
             *attrbList = q;
             return;
         }
+        //now move p,q,r by one step
+        p = q;
+        q = r;
         //move r to the next node in the list
         r = r->sibling;
+    }
+}
+
+void printAttributes(Attribute* attributeList)
+{
+    while(attributeList != NULL)
+    {
+        printf("\nName: %s,Value: %s\n",attributeList->name,attributeList->value);
+        attributeList = attributeList->sibling;
     }
 }

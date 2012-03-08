@@ -68,7 +68,7 @@ char* trim(char* str)
     *newstr = '\0';
     
     //free memory of str
-    free(str);
+    //free(str);
     
     //return newstr
     return temp;

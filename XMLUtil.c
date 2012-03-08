@@ -6,6 +6,7 @@
  */
 
 #include "XMLUtil.h"
+#include "Attribute.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,7 +81,7 @@ char* readNodeName(FILE* fp) {
                     //if '>' is found, reset the LTStarted flag
                     LTStarted = 0;
                 }
-                
+
                 if (ch == '/') {
                     if (fgetc(fp) == '>') {
                         //found end tag "/>"
@@ -120,11 +121,18 @@ char* readNodeName(FILE* fp) {
 }
 
 void readAttributes(FILE* fp) {
+    //create new Attribute list
+    Attribute* attributeList = NULL;
+
     //initialize attribute to NULL
     char* attribute = "";
 
     //No new word is encountered
     int newWord = 0;
+
+    int attribflag = 0;
+    int attribquotes = 0;
+    int readAttribute = 0;
 
     //return if File pointer is NULL
     if (fp == NULL) {
@@ -135,8 +143,10 @@ void readAttributes(FILE* fp) {
     char ch = 0;
     //process the input file
     while ((ch = fgetc(fp)) != EOF) {
+
         //check whether the character is delimiter or not
-        if (ch == ' ' || ch == '/' || ch == '>') {
+        if ((ch == ' ' && readAttribute == 1) || ((ch == '/' || ch == '>') && attribflag == 0)) {
+
 
             //check end tag is proper or contains '/' in between or at the end of tag name
             if (ch == '/' && endTag == 1) {
@@ -146,14 +156,23 @@ void readAttributes(FILE* fp) {
 
             if (newWord == 1) {
 
+                //if attribflag is unset, it is an parser error attribute value expected
+                if (attribflag==1 || (attribflag == 0 && readAttribute == 0)) {
+                    printf("UnExpected Parser Error.\n");
+                    return;
+                }
+
                 //if attribute appears in end tag like </country id="IND"> it should result in error
                 if (endTag == 1) {
                     printf("Parsing Error. attribute appears in end tag like </country id='IND'>\n");
                     return;
                 }
 
-                //Already we processed a new word now we found delimiter
-                printf("Attribute: %s\n", attribute);
+                /* Does it require?
+                                if (attribflag != 0 && attribquotes != 0) {
+                                    printf("Error while parsing XML \" Expected.");
+                                }
+                 */
 
                 if (ch == '>' || ch == '/') {
                     //if '>' or '/' is found, reset the LTStarted flag
@@ -185,12 +204,74 @@ void readAttributes(FILE* fp) {
 
             }
         } else {
+            //still we are reading attribute
+            readAttribute = 0;
+
             //Process the character which belongs to current new word
             asprintf(&attribute, "%s%c", attribute, ch);
 
             //mark newWord which represents the current word that is being read
             newWord = 1;
+
+            if (ch == '=') {
+                //to check that we are going to read attribute value
+                attribflag = 1;
+            }
+
+            if (ch == '\"' && attribflag == 0) {
+                printf("XML Parsing error. Check \" \n");
+                return;
+            }
+
+            if (attribflag == 1) {
+                if (ch == '\"') {
+                    //simply increment quotes count
+                    attribquotes++;
+                }
+            }
+
+            if (attribquotes == 2) {
+                //We have read one attribute pair successfully
+                //Already we processed a new word now we found delimiter
+                attribflag = 0;
+                attribquotes = 0;
+                readAttribute = 1;
+                printf("Attribute_1: %s\n", attribute);
+                attribute = "";
+            }
+
+
         }
     }
     return;
+}
+
+void splitAttribute(Attribute** attributeList, char* attribute) {
+    //read name till "=" is found
+    int isName = 1;
+
+    char* name = "";
+    char* value = "";
+
+    while (*attribute != '\0') {
+        if (*attribute == '=') {
+            //unset isName and start reading attribute value
+            isName = 0;
+            attribute++;
+            continue;
+        }
+
+        if (isName == 1) {
+            //read attribute name
+            asprintf(&name, "%s%c", name, *attribute);
+        } else {
+            //read attribute value
+            asprintf(&value, "%s%c", value, *attribute);
+        }
+
+        //increment the string pointer
+        attribute++;
+    }
+
+    printf("NAME: %s, Value: %s\n", name, value);
 }

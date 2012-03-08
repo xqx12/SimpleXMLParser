@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/simpleXMLParser.o \
 	${OBJECTDIR}/XMLUtil.o \
+	${OBJECTDIR}/Attribute.o \
 	${OBJECTDIR}/FileUtil.o
 
 
@@ -72,6 +73,11 @@ ${OBJECTDIR}/XMLUtil.o: XMLUtil.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/XMLUtil.o XMLUtil.c
+
+${OBJECTDIR}/Attribute.o: Attribute.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -g -MMD -MP -MF $@.d -o ${OBJECTDIR}/Attribute.o Attribute.c
 
 ${OBJECTDIR}/FileUtil.o: FileUtil.c 
 	${MKDIR} -p ${OBJECTDIR}

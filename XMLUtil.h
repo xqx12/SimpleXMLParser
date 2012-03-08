@@ -15,9 +15,12 @@ extern "C" {
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "Attribute.h"
+
     void parseXML(FILE* fp);
     char* readNodeName(FILE* fp);
     void readAttributes(FILE* fp);
+    void splitAttribute(Attribute** attributeList,char* attribute);
 
 #ifdef	__cplusplus
 }

@@ -55,7 +55,7 @@ void parseXML(FILE* fp) {
 
                 if (isSelfEndTag == 1) {
                     //Process self end tag
-                    printf("Self End Tag: %s\n",nodename);
+                    printf("Self End Tag: %s\n", nodename);
                 }
 
                 reverseAttribList(&attributeList);
@@ -202,10 +202,25 @@ Attribute* readAttributes(FILE* fp) {
                                 }
                  */
 
-                if (ch == '>' || ch == '/') {
-                    //if '>' or '/' is found, reset the LTStarted flag
+                if (ch == '>') {
+                    //if '>' is found, reset the LTStarted flag
                     LTStarted = 0;
                     return attributeList;
+                }
+
+                if (ch == '/') {
+                    if (fgetc(fp) == '>') {
+
+                        //it is a self-end tag
+                        isSelfEndTag = 1;
+
+                        //found end tag "/>"
+                        return attributeList;
+                    } else {
+                        //parsing error
+                        printf("XML Parsing error. '>' does not appear immediately after '/'.\n");
+                        return NULL;
+                    }
                 }
 
                 //reinitialize attribute for further processing
@@ -237,13 +252,12 @@ Attribute* readAttributes(FILE* fp) {
 
             }
         } else {
-            
+
             //omit spaces in the beginning
-            if( isReadingAttribName == 0 && ch == ' ' )
-            {
+            if (isReadingAttribName == 0 && ch == ' ') {
                 continue;
             }
-            
+
             //still we are reading attribute
             readAttribute = 0;
 
@@ -255,10 +269,10 @@ Attribute* readAttributes(FILE* fp) {
 
             //Process the character which belongs to current new word
             if (attribflag == 0) {
-                
+
                 //started reading attribute name
                 isReadingAttribName = 1;
-                
+
                 //save attribute name
                 asprintf(&attributename, "%s%c", attributename, ch);
             } else {
@@ -275,14 +289,13 @@ Attribute* readAttributes(FILE* fp) {
             }
 
             if (attribflag == 1) {
-                
-                if(ch == '/' || ch == '>')
-                {
+
+                if (ch == '/' || ch == '>') {
                     //unexpected end of tag, attribute value expected
                     printf("Unexpected end of tag, attribute value expected");
                     return NULL;
                 }
-                
+
                 if (ch == '\"') {
                     //simply increment quotes count
                     attribquotes++;

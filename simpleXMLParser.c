@@ -46,7 +46,9 @@ int main(int argc, char** argv) {
 
     FILE* fp = openFile("input.xml");
     
-    parseXML(fp);
+    XMLNode* root = parseXML(fp);
+    
+    printXML(root);
     
     return (EXIT_SUCCESS);
 }

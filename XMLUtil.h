@@ -21,6 +21,8 @@ extern "C" {
     XMLNode* parseXML(FILE* fp);
     char* readNodeName(FILE* fp);
     Attribute* readAttributes(FILE* fp);
+    
+    void printXML(XMLNode* root);
 
 #ifdef	__cplusplus
 }

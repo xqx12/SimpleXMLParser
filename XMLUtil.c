@@ -31,7 +31,7 @@ XMLNode* parseXML(FILE* fp) {
 
     //initialize node name to NULL
     char* nodedata = "";
-    
+
     //Stack for processing nodes
     Stack* xmlNodeStack = NULL;
 
@@ -41,14 +41,13 @@ XMLNode* parseXML(FILE* fp) {
     char ch = 0;
     while ((ch = fgetc(fp)) != EOF) {
         if (ch == '<') {
-            
+
             //set top node's data
             XMLNode* topnode = top(&xmlNodeStack);
-            if( topnode != NULL && topnode->data == NULL )
-            {
+            if (topnode != NULL && topnode->data == NULL) {
                 topnode->data = trim(nodedata);
             }
-            
+
             //mark LTStarted flag as '<' is found
             LTStarted = 1;
 
@@ -57,7 +56,7 @@ XMLNode* parseXML(FILE* fp) {
 
             //reset attributeList
             attributeList = NULL;
-            
+
             //if LTStarted is set means that current node is not yet processed completely, i.e attributes may be present
             if (LTStarted == 1) {
                 attributeList = readAttributes(fp);
@@ -113,13 +112,11 @@ XMLNode* parseXML(FILE* fp) {
                     addChild(topNode, xmlNode);
                 }
             }
-            
+
             //reset nodedata
-            asprintf(&nodedata,"");
-        }
-        else
-        {
-            asprintf(&nodedata,"%s%c",nodedata,ch);
+            asprintf(&nodedata, "");
+        } else {
+            asprintf(&nodedata, "%s%c", nodedata, ch);
         }
     }
 }
@@ -350,13 +347,13 @@ Attribute* readAttributes(FILE* fp) {
             if (attribflag == 1) {
 
                 //check for end tag only after reading attribute value
-/*
-                if (ch == '/' || ch == '>') {
-                    //unexpected end of tag, attribute value expected
-                    printf("Unexpected end of tag, attribute value expected");
-                    return NULL;
-                }
-*/
+                /*
+                                if (ch == '/' || ch == '>') {
+                                    //unexpected end of tag, attribute value expected
+                                    printf("Unexpected end of tag, attribute value expected");
+                                    return NULL;
+                                }
+                 */
 
                 if (ch == '\"') {
                     //simply increment quotes count
@@ -383,3 +380,76 @@ Attribute* readAttributes(FILE* fp) {
     return attributeList;
 }
 
+void printXML(XMLNode* root) {
+    Stack* stack = NULL;
+
+    XMLNode* xmlnode = root;
+
+    int depth = 0;
+
+    while (xmlnode != NULL) {
+        //print depth number of tabs
+        printDepth(depth);
+
+        //print open tag
+        printf("<%s>\n", xmlnode->name);
+
+        //print data if any
+        if (xmlnode->data != NULL && stringlen(xmlnode->data) > 0) {
+            //print depth number of tabs
+            printDepth(depth + 1);
+            printf("%s\n", xmlnode->data);
+        }
+
+        /*
+                //print newline if child nodes are present
+                if( xmlnode->child != NULL )
+                {
+                    printf("\n");
+                }
+         */
+
+        //push xmlnode to stack
+        push(&stack, xmlnode);
+
+        if (xmlnode->child != NULL) {
+            //Get the first child
+            xmlnode = xmlnode->child;
+
+            //increment the depth
+            depth++;
+        } else {
+            do {
+                //pop the element from stack
+                xmlnode = pop(&stack);
+
+                //print end tag
+                if (xmlnode != NULL) {
+                    //print depth number of tabs
+                    printDepth(depth);
+
+                    printf("</%s>\n", xmlnode->name);
+                }
+
+                if (xmlnode == NULL || xmlnode->sibling != NULL) {
+                    //either stack is empty or node with sibling is found
+                    if (xmlnode != NULL) {
+                        xmlnode = xmlnode->sibling;
+                    }
+                    break;
+                } else {
+                    //decrement the depth
+                    depth--;
+                }
+            } while (1);
+        }
+    }
+}
+
+int printDepth(int depth) {
+    int i = 0;
+
+    for (i = 0; i < depth; i++) {
+        printf("\t");
+    }
+}

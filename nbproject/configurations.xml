@@ -6,7 +6,9 @@
                    projectFiles="true">
       <itemPath>Attribute.h</itemPath>
       <itemPath>FileUtil.h</itemPath>
+      <itemPath>Stack.h</itemPath>
       <itemPath>StringUtil.h</itemPath>
+      <itemPath>XMLNode.h</itemPath>
       <itemPath>XMLUtil.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -18,7 +20,9 @@
                    projectFiles="true">
       <itemPath>Attribute.c</itemPath>
       <itemPath>FileUtil.c</itemPath>
+      <itemPath>Stack.c</itemPath>
       <itemPath>StringUtil.c</itemPath>
+      <itemPath>XMLNode.c</itemPath>
       <itemPath>XMLUtil.c</itemPath>
       <itemPath>input.xml</itemPath>
       <itemPath>simpleXMLParser.c</itemPath>

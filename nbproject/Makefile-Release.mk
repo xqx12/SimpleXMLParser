@@ -36,9 +36,11 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/simpleXMLParser.o \
 	${OBJECTDIR}/XMLUtil.o \
+	${OBJECTDIR}/Stack.o \
 	${OBJECTDIR}/Attribute.o \
 	${OBJECTDIR}/StringUtil.o \
-	${OBJECTDIR}/FileUtil.o
+	${OBJECTDIR}/FileUtil.o \
+	${OBJECTDIR}/XMLNode.o
 
 
 # C Compiler Flags
@@ -75,6 +77,11 @@ ${OBJECTDIR}/XMLUtil.o: XMLUtil.c
 	${RM} $@.d
 	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/XMLUtil.o XMLUtil.c
 
+${OBJECTDIR}/Stack.o: Stack.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/Stack.o Stack.c
+
 ${OBJECTDIR}/Attribute.o: Attribute.c 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
@@ -89,6 +96,11 @@ ${OBJECTDIR}/FileUtil.o: FileUtil.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/FileUtil.o FileUtil.c
+
+${OBJECTDIR}/XMLNode.o: XMLNode.c 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.c) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/XMLNode.o XMLNode.c
 
 # Subprojects
 .build-subprojects:

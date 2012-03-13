@@ -16,8 +16,9 @@ extern "C" {
 #include <stdlib.h>
 
 #include "Attribute.h"
+#include "XMLNode.h"
 
-    void parseXML(FILE* fp);
+    XMLNode* parseXML(FILE* fp);
     char* readNodeName(FILE* fp);
     Attribute* readAttributes(FILE* fp);
 

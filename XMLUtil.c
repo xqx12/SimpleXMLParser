@@ -8,6 +8,8 @@
 #include "XMLUtil.h"
 #include "Attribute.h"
 #include "StringUtil.h"
+#include "XMLNode.h"
+#include "Stack.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,12 +22,18 @@ int endTag = 0;
 //reset self-end tag
 int isSelfEndTag = 0;
 
-void parseXML(FILE* fp) {
+XMLNode* parseXML(FILE* fp) {
     //If FILE Pointer is NULL return
     if (fp == NULL) {
         printf(" Unable to parse XML. Please give a valid input file.\n");
         return;
     }
+
+    //Stack for processing nodes
+    Stack* xmlNodeStack = NULL;
+
+    //Attribute list of any node
+    Attribute* attributeList = NULL;
 
     char ch = 0;
     while ((ch = fgetc(fp)) != EOF) {
@@ -35,26 +43,63 @@ void parseXML(FILE* fp) {
 
             //Process node name and attributes list from the current xml node
             char* nodename = readNodeName(fp);
+
+            //reset attributeList
+            attributeList = NULL;
             
             //if LTStarted is set means that current node is not yet processed completely, i.e attributes may be present
             if (LTStarted == 1) {
-                Attribute* attributeList = readAttributes(fp);
+                attributeList = readAttributes(fp);
 
                 reverseAttribList(&attributeList);
                 printAttributes(attributeList);
             }
-            
+
             if (nodename != NULL) {
-                if ( endTag == 0 && isSelfEndTag == 0 ) {
+                if (endTag == 0 && isSelfEndTag == 0) {
                     //endTag is not set so it is a start tag
                     printf("Start Tag: %s\n", nodename);
+
+                    //create new XML Node
+                    XMLNode* xmlNode = createXMLNode(nodename, attributeList);
+
+                    //push the newly created node into stack
+                    push(&xmlNodeStack, xmlNode);
+
                 } else {
+                    XMLNode* xmlNode = NULL;
                     if (isSelfEndTag == 1) {
                         //Process self end tag
-                        printf("Self ");
+
+                        //create new XML Node
+                        xmlNode = createXMLNode(nodename, attributeList);
+
+                        printf("Self End Tag: %s\n", nodename);
+                    } else {
+                        //endTag is set, so it is an end tag
+                        xmlNode = (XMLNode*) pop(&xmlNodeStack);
+
+                        printf("End Tag: %s\n", nodename);
+
+                        //check whether the end-tag is proper or not
+                        //end-tag must be same as the start tag
+                        if (compare(xmlNode->name, nodename) == 0) {
+                            printf("XML Parse Error. XML tags mismatch: <%s>,</%s>", xmlNode->name, nodename);
+                            return;
+                        }
+
+
                     }
-                    //endTag is set, so it is an end tag
-                    printf("End Tag: %s\n", nodename);
+
+                    XMLNode* topNode = top(&xmlNodeStack);
+
+                    if (topNode == NULL) {
+                        printf("XML Parsed Successfully.");
+                        return xmlNode;
+                    }
+
+                    //add xmlnode to topNode's children's list
+                    addChild(topNode, xmlNode);
                 }
             }
 

@@ -86,3 +86,39 @@ int stringlen(char* str)
     return length;
 }
 
+int compare(char* str1,char* str2)
+{
+    
+    if( str1 == NULL && str2 == NULL )
+    {
+        //both strings are same if both are NULL
+        return 1;
+    }
+    
+    if( str1 == NULL || str2 == NULL )
+    {
+        //if any one string is NULL, both are different
+        return 0;
+    }
+    
+    while( *str1 != '\0' && *str2 != '\0' )
+    {
+        if( *str1 != *str2 )
+        {
+            //there is a mismatch
+            return 0;
+        }
+        str1++;
+        str2++;
+    }
+    
+    if( *str1 == '\0' && *str2 == '\0' )
+    {
+        //reached end of the string after comparing the characters one-by-one 
+        return 1;
+    }
+    
+    //mismatch
+    return 0;
+}
+

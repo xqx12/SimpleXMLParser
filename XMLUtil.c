@@ -392,22 +392,24 @@ void printXML(XMLNode* root) {
         printDepth(depth);
 
         //print open tag
-        printf("<%s>\n", xmlnode->name);
+        printf("<%s", xmlnode->name);
 
+        //print Attributes of current xml node
+        Attribute* attributeList = xmlnode->attributeList;
+        while( attributeList != NULL )
+        {
+            printf(" %s=\"%s\"",attributeList->name,attributeList->value);
+            attributeList = attributeList->sibling;
+        }
+        
+        printf(">\n");
+        
         //print data if any
         if (xmlnode->data != NULL && stringlen(xmlnode->data) > 0) {
             //print depth number of tabs
             printDepth(depth + 1);
             printf("%s\n", xmlnode->data);
         }
-
-        /*
-                //print newline if child nodes are present
-                if( xmlnode->child != NULL )
-                {
-                    printf("\n");
-                }
-         */
 
         //push xmlnode to stack
         push(&stack, xmlnode);

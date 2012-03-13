@@ -7,6 +7,7 @@
  */
 
 #include "Attribute.h"
+#include "StringUtil.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +35,20 @@ Attribute* createAttributeNode(char* name, char* value)
 
 void addtoAttributeList(Attribute** attrbList, char* name, char* value)
 {
+    
+    //remove doublequotes from attribute value
+    if( *value == '\"')
+    {
+        value++;
+    }
+    
+    int len = stringlen(value);
+    
+    if( *(value + len - 1) == '\"')
+    {
+        *(value + len - 1) = '\0';
+    }
+    
     //create new node with name and value
     Attribute* newnode = createAttributeNode(name,value);
     

@@ -28,6 +28,7 @@ XMLNode* createXMLNode(char* name,Attribute* attributeList)
     
     newNode->child = NULL;
     newNode->sibling = NULL;
+    newNode->data = NULL;
     
     return newNode;
 }

@@ -1,6 +1,6 @@
-
-<root xmlns:a="hello u"   ppp  =  "as"      >
-    <a:A attr1="attr"   />
-    <a:B></a:B>
-    <b:A/>
-</root>
+<Template>
+	<TemplateInformationHeader name="Traceability" description="<root></root>" type="table" default="false"/>
+	<ElementBaseInitiationBlock>
+		<Include template="Traceability.xml"/>
+	</ElementBaseInitiationBlock>
+</Template>

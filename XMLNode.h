@@ -16,6 +16,7 @@ extern "C" {
     typedef struct XMLNode
     {
         char* name;
+        char* data;
         struct XMLNode* child;
         struct XMLNode* sibling;
         struct Attribute* attributeList;

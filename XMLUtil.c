@@ -29,6 +29,9 @@ XMLNode* parseXML(FILE* fp) {
         return;
     }
 
+    //initialize node name to NULL
+    char* nodedata = "";
+    
     //Stack for processing nodes
     Stack* xmlNodeStack = NULL;
 
@@ -38,6 +41,14 @@ XMLNode* parseXML(FILE* fp) {
     char ch = 0;
     while ((ch = fgetc(fp)) != EOF) {
         if (ch == '<') {
+            
+            //set top node's data
+            XMLNode* topnode = top(&xmlNodeStack);
+            if( topnode != NULL && topnode->data == NULL )
+            {
+                topnode->data = trim(nodedata);
+            }
+            
             //mark LTStarted flag as '<' is found
             LTStarted = 1;
 
@@ -102,7 +113,13 @@ XMLNode* parseXML(FILE* fp) {
                     addChild(topNode, xmlNode);
                 }
             }
-
+            
+            //reset nodedata
+            asprintf(&nodedata,"");
+        }
+        else
+        {
+            asprintf(&nodedata,"%s%c",nodedata,ch);
         }
     }
 }
@@ -332,11 +349,14 @@ Attribute* readAttributes(FILE* fp) {
 
             if (attribflag == 1) {
 
+                //check for end tag only after reading attribute value
+/*
                 if (ch == '/' || ch == '>') {
                     //unexpected end of tag, attribute value expected
                     printf("Unexpected end of tag, attribute value expected");
                     return NULL;
                 }
+*/
 
                 if (ch == '\"') {
                     //simply increment quotes count
